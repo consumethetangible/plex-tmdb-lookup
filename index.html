@@ -4,12 +4,25 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="robots" content="noindex, nofollow" />
+		<!--
+			Locks the page down: only its own scripts and styles run, and the only
+			outside server it may talk to is TMDB. That matters because this page
+			holds your TMDB token.
+		-->
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https://image.tmdb.org; connect-src https://api.themoviedb.org; base-uri 'none'; form-action 'none'"
+		/>
 		<title>TMDB ID Lookup</title>
 		<link rel="stylesheet" href="./css/styles.css" />
+		<link rel="stylesheet" href="./css/page.css" />
 	</head>
 	<body>
 		<header class="top">
-			<h1>TMDB ID Lookup</h1>
+			<div class="top-row">
+				<h1>TMDB ID Lookup</h1>
+				<button id="token-toggle" type="button" class="icon-button" hidden>Token</button>
+			</div>
 			<p class="tagline">Find the ID, copy a Plex-ready name.</p>
 		</header>
 
@@ -27,14 +40,24 @@
 				<button type="button" class="chip" data-filter="people" aria-pressed="false">People</button>
 			</div>
 
-			<div id="setup" class="notice" hidden>
-				<h2>One-time setup</h2>
-				<ol>
-					<li>Copy <code>js/config.local.example.js</code> to <code>js/config.local.js</code>.</li>
-					<li>Paste your TMDB <strong>API Read Access Token</strong> into it.</li>
-					<li>Reload this page.</li>
-				</ol>
-			</div>
+			<section id="setup" class="notice" hidden>
+				<h2 id="setup-title">Add your TMDB token</h2>
+				<p>
+					Paste your TMDB <strong>API Read Access Token</strong> (the long one starting with <code>eyJ</code>). The shorter 32-character API Key works too.
+					It's saved only in this browser, and the page sends it only to TMDB.
+					<a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">Find it in your TMDB settings</a>.
+				</p>
+				<form id="token-form" autocomplete="off">
+					<label for="token" class="visually-hidden">TMDB token</label>
+					<input id="token" type="password" spellcheck="false" autocomplete="off" placeholder="Paste your token" />
+					<button type="submit" class="primary">Save &amp; test</button>
+				</form>
+				<div class="row">
+					<button id="token-clear" type="button" hidden>Remove saved token</button>
+					<button id="token-close" type="button" hidden>Close</button>
+				</div>
+				<div id="token-status" class="status" role="status" aria-live="polite" hidden></div>
+			</section>
 
 			<div id="status" class="status" role="status" aria-live="polite" hidden></div>
 			<div id="results"></div>

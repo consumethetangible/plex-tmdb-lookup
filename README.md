@@ -8,22 +8,34 @@ A small personal tool for finding TMDB IDs and copying Plex-ready names, built f
 - Numeric searches show an **Exact ID match** first, then title matches, so `1917` and `300` still find the movies called that.
 - Shorthand searches work too: `lotr`, `hp`, `sw`, `bttf`, and so on.
 
-It runs entirely on your machine and talks straight to TMDB. There's no proxy, no server of its own, no analytics.
+The page talks straight from your browser to TMDB. There's no proxy, no server of its own, no analytics.
 
-## Setup (once)
+## Two ways to run it
 
-1. Copy `js/config.local.example.js` to `js/config.local.js`.
-2. Paste your TMDB **API Read Access Token** into it (TMDB account > Settings > API; it's the long one starting with `eyJ`). The shorter 32-character API Key works too.
-3. Start a local server and open the page:
+Both use the same page. The only difference is where your TMDB token comes from. Get yours from your TMDB account under Settings > API: use the **API Read Access Token** (the long one starting with `eyJ`). The shorter 32-character API Key works too.
+
+### Hosted (GitHub Pages): paste your token once
+
+This is how it runs as part of the P.A.I.N. Workbench. Open the page and it asks for your token. Paste it, press **Save & test**, and it's checked with TMDB and then kept in that browser's local storage. Use the **Token** button at the top to replace or remove it later.
+
+- The token is **never in the repo**. It lives only in the browser you pasted it into, so each new browser or device needs it pasted once.
+- A Content-Security-Policy in `index.html` means the page can only run its own scripts and can only talk to `api.themoviedb.org`.
+- All the Pages sites under one GitHub account share a browser "origin", so they can see each other's local storage. That's fine while every site on the account is your own code; keep it in mind before putting anything third-party there.
+- To publish: repo **Settings > Pages > Deploy from a branch > `main` / root**. The page lives at `https://<account>.github.io/plex-tmdb-lookup/`. Pages on a private repo needs a paid GitHub plan, so the repo is public. That's safe because no token is ever committed.
+
+### Local: a token file
+
+1. Copy `js/config.local.example.js` to `js/config.local.js` and paste your token into it.
+2. Start a local server from the project folder and open the page:
 
    ```bash
    python3 -m http.server 8080 --bind 127.0.0.1
    # then open http://localhost:8080
    ```
 
-   A server is needed because browsers won't load ES modules from `file://`. Python 3 ships with macOS.
+   A server is needed because browsers won't load ES modules from `file://`. Python 3 ships with macOS. Run it from inside the project folder, since it serves whatever folder it was started in.
 
-`js/config.local.js` is gitignored. **Never commit it or host this page publicly with your token in it**: anyone could read the token out of the served JavaScript. Local use or a private repo is fine.
+`js/config.local.js` is gitignored. **Never commit it, and never publish a copy of the site that contains it.** If both a saved token and the file exist, the saved token wins.
 
 ## Two-minute smoke test
 
@@ -31,11 +43,11 @@ It runs entirely on your machine and talks straight to TMDB. There's no proxy, n
 2. Search `603`. Expect an **Exact ID match** section with The Matrix at the top.
 3. Search `1917`. Expect the ID match (if any) plus the 2019 film from the title search.
 4. Search something with a colon in the title, like `mission impossible`. Expect the Plex name to turn `:` into ` - `.
-5. Put garbage in the token file and reload. Expect a red message saying TMDB rejected the token.
+5. Hosted mode: open **Token**, paste garbage, press **Save & test**. Expect a red message saying TMDB rejected it, and your good token still saved.
 
 ## About the Plex name
 
-The format is `Title (Year) {tmdb-ID}`. Characters that are illegal in file names on Windows, macOS, Linux and SMB shares are cleaned up (`Mission: Impossible` becomes `Mission - Impossible`). I wrote this from my understanding of Plex's naming rules for the `{tmdb-…}` tag, so try it on a single title on your server before renaming a whole batch, TV shows especially.
+The format is `Title (Year) {tmdb-ID}`. Characters that are illegal in file names on Windows, macOS, Linux and SMB shares are cleaned up (`Mission: Impossible` becomes `Mission - Impossible`). Confirmed on a real Plex server: a movie folder named this way matched correctly on scan. TV shows use the same tag but haven't been tried yet.
 
 ## Chrome extension
 
@@ -64,23 +76,26 @@ The same lookup as a toolbar popup, in the `extension/` folder. It's for persona
 node --test
 ```
 
-30 tests, all offline, with no token needed:
+46 tests, all offline, with no token needed:
 
 - Plex naming, result shaping, the TMDB client (both token styles, error handling) and the search logic, against a mocked TMDB.
+- Page checks: saving, reading and clearing the token (including when the browser blocks storage), the page's Content-Security-Policy (TMDB only, no inline or remote scripts, no analytics), and the stylesheet rule that keeps hidden elements hidden.
 - Extension checks: the shared copies are in sync, the manifest asks for only the permissions listed above, every file the pages and scripts reference exists, and nothing logs the token or syncs it to Google.
 
 ## Layout
 
 ```
-index.html              the web page
-css/styles.css
-js/app.js               page startup: reads your token, mounts the UI
+index.html              the web page (includes the Content-Security-Policy)
+css/styles.css          shared styles (page + extension)
+css/page.css            page-only styles
+js/app.js               page startup: finds your token, mounts the UI
+js/page-token.js        saves/reads/clears the token in the browser
 js/ui/search-ui.js      search, rendering and copy buttons (page + extension)
 js/core/tmdb.js         TMDB client; takes the token as an argument
 js/core/lookup.js       search and ID logic
 js/core/results.js      shapes raw TMDB data for display
 js/core/plex.js         Plex naming
-js/config.local.js      your token (you create this; gitignored)
+js/config.local.js      optional: your token for local runs (you create this; gitignored)
 extension/              the Chrome extension (manifest, popup, settings, icons)
 extension/shared/       generated copies of the shared code (npm run sync)
 scripts/sync-core.mjs   keeps extension/shared up to date
