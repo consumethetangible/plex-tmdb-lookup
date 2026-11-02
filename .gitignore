@@ -1,0 +1,6 @@
+# Your TMDB token lives here and must never be committed or shared
+js/config.local.js
+
+node_modules/
+*.zip
+.DS_Store

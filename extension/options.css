@@ -1,0 +1,49 @@
+/* Settings-page tweaks on top of shared/styles.css */
+
+main,
+.top,
+footer {
+	max-width: 560px;
+}
+
+label {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 600;
+}
+
+#token {
+	width: 100%;
+	padding: 12px 14px;
+	font: inherit;
+	color: var(--text);
+	background: var(--panel);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+}
+
+#token:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.hint {
+	margin: 8px 0 16px;
+	font-size: 0.9rem;
+	color: var(--muted);
+}
+
+.hint a {
+	color: var(--accent);
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.status.ok {
+	border-color: #4caf7a;
+	color: #8be0ad;
+}

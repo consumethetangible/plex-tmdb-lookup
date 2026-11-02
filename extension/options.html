@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>TMDB ID Lookup settings</title>
+		<link rel="stylesheet" href="shared/styles.css" />
+		<link rel="stylesheet" href="options.css" />
+	</head>
+	<body>
+		<header class="top">
+			<h1>TMDB ID Lookup settings</h1>
+			<p class="tagline">Your token is stored only in this browser, on this computer.</p>
+		</header>
+
+		<main>
+			<form id="token-form" autocomplete="off">
+				<label for="token">TMDB API Read Access Token</label>
+				<input id="token" type="password" spellcheck="false" autocomplete="off" placeholder="Paste the long token starting with eyJ…" />
+				<p class="hint">
+					Find it on TMDB under
+					<a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">Settings &gt; API</a>.
+					The shorter 32-character API Key also works.
+				</p>
+
+				<div class="row">
+					<button type="submit" class="primary">Save</button>
+					<button id="test" type="button">Test token</button>
+					<button id="clear" type="button">Clear saved token</button>
+				</div>
+			</form>
+
+			<div id="status" class="status" role="status" aria-live="polite" hidden></div>
+		</main>
+
+		<footer>
+			<p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+		</footer>
+
+		<script type="module" src="options.js"></script>
+	</body>
+</html>
